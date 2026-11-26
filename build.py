@@ -282,7 +282,7 @@ def main():
     shutil.copytree(ROOT / "assets", OUT / "assets")
     if (ROOT / "wp-content").exists():
         shutil.copytree(ROOT / "wp-content", OUT / "wp-content")
-    for f in ["robots.txt", "llms.txt"]:
+    for f in ["CNAME", "robots.txt", "llms.txt"]:
         if (ROOT / f).exists():
             shutil.copy(ROOT / f, OUT / f)
     (OUT / ".nojekyll").write_text("")
