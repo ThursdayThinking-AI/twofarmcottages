@@ -1,0 +1,31 @@
+# One-off: copies the photos from the old WordPress site into this repo,
+# at the same /wp-content/uploads/ paths, so image URLs don't change.
+# Run it from the Actions tab while the old site is still live.
+name: Import images from old site
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download images
+        run: |
+          fail=0
+          while read -r p; do
+            [ -z "$p" ] && continue
+            mkdir -p "wp-content/uploads/$(dirname "$p")"
+            if ! curl -fsSL --retry 3 -A "Mozilla/5.0" -o "wp-content/uploads/$p" "https://www.twofarmcottages.co.uk/wp-content/uploads/$p"; then
+              echo "::warning::Failed $p"; fail=$((fail+1)); rm -f "wp-content/uploads/$p"
+            fi
+          done < scripts/images.txt
+          echo "Failures: $fail"
+          du -sh wp-content
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add wp-content
+          git diff --cached --quiet || git commit -m "Import images from old WordPress site"
+          git push
