@@ -8,6 +8,8 @@ URLs keep the trailing slash used by the old WordPress site.
 Run:  python3 build.py
 """
 import json
+import os
+import re
 import pathlib
 import shutil
 from datetime import date
@@ -16,6 +18,8 @@ ROOT = pathlib.Path(__file__).parent
 OUT = ROOT / "_site"
 SITE = "https://www.twofarmcottages.co.uk"
 UP = "/wp-content/uploads"
+# Path prefix for the github.io preview (e.g. "/twofarmcottages"). Empty once the real domain is live.
+BASE = os.environ.get("BASE_PATH", "").rstrip("/")
 
 BUSINESS = {
     "name": "Two Farm Cottages",
@@ -310,7 +314,13 @@ def main():
     (OUT / "sitemap.xml").write_text(xml)
     # Old Yoast sitemap address, so Search Console's saved sitemap keeps working.
     (OUT / "sitemap_index.xml").write_text(xml)
-    print(f"Built {len(PAGES)} pages into {OUT}")
+    if BASE:
+        for f in OUT.rglob("*.html"):
+            h = f.read_text(encoding="utf-8")
+            h = re.sub(r'(href|src|content)="/(?!/)', rf'\1="{BASE}/', h)
+            h = h.replace("url('/", f"url('{BASE}/").replace('location.replace("/', f'location.replace("{BASE}/')
+            f.write_text(h, encoding="utf-8")
+    print(f"Built {len(PAGES)} pages into {OUT}" + (f" with base path {BASE}" if BASE else ""))
 
 
 if __name__ == "__main__":
