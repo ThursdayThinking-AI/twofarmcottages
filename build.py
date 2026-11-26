@@ -180,7 +180,7 @@ def layout(p, body):
     home_schema = f'<script type="application/ld+json">{schema()}</script>' if not p["slug"] else ""
     hero = ""
     if not p["slug"]:
-        hero = f'''<section class="hero" style="background-image:url('{UP}/2016/05/IMG_0428.jpg')">
+        hero = f'''<section class="hero" style="background-image:url('/assets/hero.jpg')">
   <div class="hero-inner">
     <p class="eyebrow">Amberley · South Downs National Park</p>
     <h1>{esc(p["h1"])}</h1>
